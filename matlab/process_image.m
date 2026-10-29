@@ -23,14 +23,15 @@ function process_image(inFile, outFile, mode, value)
                 newSize = [round(h * value / w), value];   % portrait: width = value
             end
 
-            out = clampToUint8(imresize(img, newSize, 'bicubic'));
+            out = resizeImage(img, newSize);
+            clear img;
 
             [~, ~, ext] = fileparts(outFile);
             if strcmpi(ext, '.png')
                 if isempty(alpha)
                     imwrite(out, outFile);
                 else
-                    outAlpha = clampToUint8(imresize(alpha, newSize, 'bicubic'));
+                    outAlpha = resizeImage(alpha, newSize);
                     imwrite(out, outFile, 'Alpha', outAlpha);
                 end
             else
@@ -65,13 +66,35 @@ function process_image(inFile, outFile, mode, value)
 end
 
 function [img, alpha] = readImage(file)
-    [img, map, alpha] = imread(file);
+    alpha = [];
+    try
+        [img, map, alpha] = imread(file);
+    catch
+        [img, map] = imread(file);  % Octave can't return alpha for some palette PNGs
+    end
     if ~isempty(map)
-        img = ind2rgb(img, map);    % palette image -> true colour
+        % Palette image -> true colour. Done by hand because ind2rgb behaves
+        % differently in Octave. Integer indices are zero-based.
+        idx = double(img);
+        if isinteger(img)
+            idx = idx + 1;
+        end
+        idx = min(max(round(idx), 1), size(map, 1));
+        img = reshape(map(idx(:), :), [size(idx, 1), size(idx, 2), 3]);
     end
     img = clampToUint8(img);
     if ~isempty(alpha)
         alpha = clampToUint8(alpha);
+    end
+end
+
+function out = resizeImage(img, newSize)
+%RESIZEIMAGE Resize one colour channel at a time to keep memory use low
+%   (the free server has only 512 MB).
+    channels = size(img, 3);
+    out = zeros([newSize, channels], 'uint8');
+    for c = 1:channels
+        out(:, :, c) = clampToUint8(imresize(img(:, :, c), newSize, 'bicubic'));
     end
 end
 
@@ -81,7 +104,7 @@ function img = flattenOnWhite(img, alpha, newSize)
         return;
     end
     if ~isempty(newSize)
-        alpha = clampToUint8(imresize(alpha, newSize, 'bicubic'));
+        alpha = resizeImage(alpha, newSize);
     end
     a = double(alpha) / 255;
     img = uint8(round(double(img) .* a + 255 * (1 - a)));

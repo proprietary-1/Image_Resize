@@ -20,4 +20,4 @@ ENV IMAGE_ENGINE=octave
 ENV PORT=7860
 EXPOSE 7860
 # PORT is set by the host (Render uses its own); one worker keeps memory low on free plans.
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 200 app:app
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 1--timeout 200 app:app
