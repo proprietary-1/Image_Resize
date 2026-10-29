@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image Resizer</title>
+  <meta name="description" content="Change an image's resolution or reduce its file size. Image processing written in MATLAB.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Image Resizer</h1>
+      <p class="subtitle">Change the resolution or shrink the file size of your image.</p>
+    </header>
+
+    <!-- Step 1: upload -->
+    <section class="card">
+      <h2><span class="step">1</span> Upload an image</h2>
+
+      <label id="dropzone" class="dropzone" for="file-input">
+        <input id="file-input" type="file" accept="image/jpeg,image/png" hidden>
+        <svg class="dropzone-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        </svg>
+        <span class="dropzone-text"><strong>Click to choose</strong> or drag an image here</span>
+        <span class="hint">JPG or PNG, up to 10 MB</span>
+      </label>
+
+      <div id="preview" class="preview" hidden>
+        <img id="preview-img" alt="Uploaded image preview">
+        <div class="preview-info">
+          <div class="file-name" id="file-name"></div>
+          <div class="meta" id="file-meta"></div>
+          <button type="button" id="change-file" class="link-button">Choose a different image</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: options -->
+    <section class="card" id="options-card" aria-disabled="true">
+      <h2><span class="step">2</span> Choose what to change</h2>
+
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" role="tab" aria-selected="true" data-mode="resolution">Resolution</button>
+        <button type="button" class="tab" role="tab" aria-selected="false" data-mode="filesize">File size</button>
+      </div>
+
+      <div class="panel" id="panel-resolution">
+        <p class="panel-help">The shorter side becomes the chosen size. Your image keeps its shape.</p>
+        <div class="chips" id="resolution-chips">
+          <button type="button" class="chip" data-value="480">480p</button>
+          <button type="button" class="chip selected" data-value="720">720p</button>
+          <button type="button" class="chip" data-value="1080">1080p</button>
+          <button type="button" class="chip" data-value="1440">1440p</button>
+          <button type="button" class="chip" data-value="2160">4K</button>
+        </div>
+        <p class="estimate" id="resolution-estimate"></p>
+        <p class="warning" id="upscale-warning" hidden>This is larger than your image, so it will be enlarged and may look blurry.</p>
+      </div>
+
+      <div class="panel" id="panel-filesize" hidden>
+        <p class="panel-help">Width and height stay the same. Only the file gets smaller. Saved as JPG.</p>
+        <div class="chips" id="filesize-chips">
+          <button type="button" class="chip" data-value="20">Reduce by 20%</button>
+          <button type="button" class="chip selected" data-value="50">Reduce by 50%</button>
+          <button type="button" class="chip" data-value="75">Reduce by 75%</button>
+        </div>
+        <label class="custom">
+          <span>Or your own:</span>
+          <input type="number" id="custom-percent" min="1" max="95" placeholder="e.g. 30">
+          <span>%</span>
+        </label>
+        <p class="estimate" id="filesize-estimate"></p>
+      </div>
+
+      <button type="button" id="process-btn" class="primary" disabled>
+        <span class="btn-label">Upload an image first</span>
+        <span class="spinner" aria-hidden="true"></span>
+      </button>
+      <p class="error" id="error" role="alert" hidden></p>
+    </section>
+
+    <!-- Step 3: result -->
+    <section class="card" id="result-card" hidden>
+      <h2><span class="step">3</span> Your image</h2>
+      <div class="result">
+        <img id="result-img" alt="Processed image">
+        <dl class="stats">
+          <div><dt>Before</dt><dd id="before-stats"></dd></div>
+          <div><dt>After</dt><dd id="after-stats"></dd></div>
+        </dl>
+        <p class="note" id="result-note" hidden></p>
+      </div>
+      <div class="actions">
+        <a id="download-btn" class="primary" download>Download</a>
+        <button type="button" id="restart-btn" class="secondary">Start over</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Image processing written in MATLAB, running on GNU Octave.</p>
+      <p>Your images are processed and deleted right away. Nothing is stored.</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
