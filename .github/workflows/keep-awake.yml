@@ -1,11 +1,10 @@
-# Visits the live site every 12 hours so the free Hugging Face Space never goes to sleep.
-# Set the repository variable SPACE_URL (Settings -> Secrets and variables -> Actions -> Variables),
-# e.g. https://your-username-image-resizer.hf.space
+# Visits the live site every 10 minutes so Render's free plan doesn't put it to sleep
+# (it sleeps after 15 minutes without visitors).
 name: Keep site awake
 
 on:
   schedule:
-    - cron: "0 */12 * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -13,4 +12,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Visit the site
-        run: curl --fail --silent --show-error --max-time 180 --retry 3 --retry-delay 30 "${{ vars.SPACE_URL }}/health"
+        run: curl --fail --silent --show-error --max-time 180 --retry 3 --retry-delay 30 https://image-resize-hwbp.onrender.com/health
